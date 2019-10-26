@@ -3,9 +3,9 @@ const readLine = require('readline')
 
 const csvFileName = 'customer-data.csv'
 const jsonFileName = 'customer-data.json'
-let isHeader = true;
+let isHeaderFlag = true;
 let headers={}
-let buffer= '[\n'
+let buffer= []
 
 let reader = readLine.createInterface({
     input: fs.createReadStream(csvFileName)
@@ -13,26 +13,22 @@ let reader = readLine.createInterface({
 
 reader.on('line',(row)=>{
     let data = row.split(',')
-    let count = 0
-    let jsonObject= '  {\n'
+    let jsonObject= {}
 
-    if(isHeader){
+    if(isHeaderFlag){
         headers = data
     } 
     else {
     headers.forEach((element,index) => {
-        jsonObject += '    "' + element + '": "' + data[index] + '",\n'
+        jsonObject [element] = data[index];
     })
-    jsonObject = jsonObject.substr(0,jsonObject.length-2)
-    jsonObject += '\n  },\n'
-    buffer+=jsonObject
+
+    buffer.push(jsonObject)
     }
-    isHeader=false
+    isHeaderFlag=false
     
 })
 
 reader.on('close',()=>{
-    buffer = buffer.substr(0,buffer.length-2);
-    buffer+='\n]'
-    fs.writeFileSync(jsonFileName,buffer)
+    fs.writeFileSync(jsonFileName,JSON.stringify(buffer))
 })
